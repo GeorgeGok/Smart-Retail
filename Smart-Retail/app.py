@@ -16,10 +16,10 @@ buttonHasBeenReported = True
 ssid = "-UndergroundClassics"  # Change to your WiFi SSID
 password = "ucucucuc"  # Change to your WiFi password
 
-currentState = "STATE_SERVER_START"
+currentState = "STATE_CLIENT_START"
 currentButtonState = "BUTTON_STATE_LOW"
 
-server_address = ('', 8080)  # Listen on all interfaces, port 8080
+server_address = ('192.168.8.137', 8080)  # Replace ESP_IP_Address with your ESP32's IP address
 
 def setup():
     # Set up Wi-Fi connection
@@ -38,6 +38,7 @@ def setup():
 def loop():
     run_state_machine()
     run_button_state_machine()
+    communicate_with_esp()
 
 def run_button_state_machine():
     global currentButtonState, buttonHasBeenReported
@@ -104,6 +105,16 @@ def run_state_machine():
 
     if previousState != currentState:
         print("Transitioning from", previousState, "to", currentState)
+
+def communicate_with_esp():
+    # Connect to ESP32 server
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect(server_address)
+        print("Connected to ESP32 server")
+
+        # Receive data from server
+        data = s.recv(1024)
+        print("Received:", data.decode())
 
 setup()
 
